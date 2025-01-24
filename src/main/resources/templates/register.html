@@ -23,15 +23,15 @@
       </a>
     </div>
 
-    <form class="form" action="/register" method="post">
+    <form class="form" th:action="@{/register}" th:method="post" th:object="${registerRequest}">
 
       <h3>Register Here</h3>
 
       <label for="username">Username</label>
-      <input type="text" placeholder="Username" id="username">
+      <input type="text" placeholder="Username" id="username" th:field="*{username}" required>
 
       <label for="password">Password</label>
-      <input type="password" placeholder="Password" id="password">
+      <input type="password" placeholder="Password" id="password" th:field="*{password}" required>
 
       <label for="country">Country</label>
       <select id="country">
