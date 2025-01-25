@@ -29,15 +29,16 @@
 
       <label for="username">Username</label>
       <input type="text" placeholder="Username" id="username" th:field="*{username}" required>
+      <p class="alert-warning" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
 
       <label for="password">Password</label>
       <input type="password" placeholder="Password" id="password" th:field="*{password}" required>
+      <p class="alert-warning" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
 
       <label for="country">Country</label>
-      <select id="country">
-        <option value="BULGARIA">BULGARIA</option>
-        <option value="GERMANY">GERMANY</option>
-        <option value="FRANCE">FRANCE</option>
+      <select id="country" th:field="*{country}">
+        <option th:each="country : ${T(org.example.spingwallet.user.model.Country).values()}" th:value="${country}" th:text="${#strings.capitalize(#strings.toLowerCase(country))}" ></option>
+
       </select>
 
       <button>Register</button>

@@ -7,6 +7,7 @@ import org.example.spingwallet.user.service.UserService;
 import org.example.spingwallet.web.dto.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,23 +49,24 @@ public class IndexController {
     }
 
     @PostMapping ("/register")
-    public ModelAndView registerNewUser (@Valid  RegisterRequest registerRequest) {
+    public ModelAndView registerNewUser (@Valid RegisterRequest registerRequest , BindingResult bindingResult) {
 
-        System.out.println();
-//        ModelAndView mav = new ModelAndView();
-//        mav.setViewName("register");
-//        mav.addObject("registerRequest", registerRequest);
+        if(bindingResult.hasErrors()) {
+            return new ModelAndView("register");
+        }
 
-        return null;
+        User registerUser = userService.register(registerRequest);
+
+        return new ModelAndView("redirect:/home");
     }
 
     @GetMapping("/home")
     public ModelAndView getHome() {
 
-        ModelAndView mav = new ModelAndView("home");
+        ModelAndView mav = new ModelAndView();
         User userServiceById = userService.getById(UUID.fromString("702254ea-a5e5-457d-b0f3-aa4236e49ac5"));
         mav.addObject("user", userServiceById);
-        mav.setViewName("home");
+        mav.setViewName("/home");
         return mav;
     }
 
