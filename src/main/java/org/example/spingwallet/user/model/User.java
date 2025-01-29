@@ -24,14 +24,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-
     @Column(nullable = false, unique = true)
     private String username;
 
     private String firstName;
 
     private String lastName;
-
 
     private String profilePicture;
 

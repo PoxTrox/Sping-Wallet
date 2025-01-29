@@ -7,9 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class LoginRequest {
 
     @Size(min = 5, max = 50, message = "User name must be with at least 5 symbols")

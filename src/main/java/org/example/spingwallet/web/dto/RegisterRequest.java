@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegisterRequest {
 
     @Size(min = 5, max = 50, message = "User name must be with at least 5 symbols")

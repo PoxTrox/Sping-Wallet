@@ -14,6 +14,7 @@ import org.example.spingwallet.wallet.model.Wallet;
 import org.example.spingwallet.wallet.service.WalletService;
 import org.example.spingwallet.web.dto.LoginRequest;
 import org.example.spingwallet.web.dto.RegisterRequest;
+import org.example.spingwallet.web.dto.UserEditRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -102,6 +103,19 @@ public class UserService {
     public User getById(UUID id) {
 
         return userRepository.findById(id).orElseThrow(() -> new DomainException("User with id [%s] does not exist.".formatted(id)));
+    }
+
+    public void editUser(UUID id, UserEditRequest userEditRequest) {
+
+        User userById = getById(id);
+
+        userById.setFirstName(userEditRequest.getFirstName());
+        userById.setLastName(userEditRequest.getLastName());
+        userById.setEmail(userEditRequest.getEmail());
+        userById.setProfilePicture(userEditRequest.getProfilePicture());
+        userRepository.save(userById);
+
+
     }
 
 

@@ -4,6 +4,7 @@ package org.example.spingwallet.web;
 import jakarta.validation.Valid;
 import org.example.spingwallet.user.model.User;
 import org.example.spingwallet.user.service.UserService;
+import org.example.spingwallet.web.dto.LoginRequest;
 import org.example.spingwallet.web.dto.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,9 +34,25 @@ public class IndexController {
     }
 
     @GetMapping("/login")
-    public String getLogin() {
+    public ModelAndView getLogin() {
 
-        return "login";
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("login");
+        modelAndView.addObject("loginRequest", new LoginRequest());
+
+        return modelAndView;
+    }
+
+    @PostMapping("login")
+    public String login (@Valid LoginRequest loginRequest, BindingResult bindingResult ) {
+
+        if(bindingResult.hasErrors()) {
+            return "login";
+        }
+
+       userService.login(loginRequest);
+
+        return ("redirect:/home");
     }
 
     @GetMapping("/register")
@@ -48,14 +65,14 @@ public class IndexController {
         return modelAndView;
     }
 
-    @PostMapping ("/register")
-    public ModelAndView registerNewUser (@Valid RegisterRequest registerRequest , BindingResult bindingResult) {
+    @PostMapping("/register")
+    public ModelAndView registerNewUser(@Valid RegisterRequest registerRequest, BindingResult bindingResult) {
 
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             return new ModelAndView("register");
         }
 
-        User registerUser = userService.register(registerRequest);
+       userService.register(registerRequest);
 
         return new ModelAndView("redirect:/home");
     }
