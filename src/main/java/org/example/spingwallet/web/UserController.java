@@ -9,10 +9,7 @@ import org.example.spingwallet.web.mapper.DtoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.UUID;
@@ -33,23 +30,23 @@ public class UserController {
     public ModelAndView getProfileMenu(@PathVariable UUID id) {
 
         ModelAndView modelAndView = new ModelAndView();
-        User byId = userService.getById(id);
-        modelAndView.addObject("user", byId);
+        User user = userService.getById(id);
+        modelAndView.addObject("user", user);
         modelAndView.setViewName("profile-menu");
-        modelAndView.addObject("editRequest", DtoMapper.mapToUserEditRequest(byId));
+        modelAndView.addObject("editRequest", DtoMapper.mapToUserEditRequest(user));
 
         return modelAndView;
     }
 
     @PutMapping("/{id}/profile")
-    public ModelAndView updateProfileMenu(@PathVariable UUID id, @Valid UserEditRequest editRequest, BindingResult bindingResult) {
+    public ModelAndView updateProfileMenu(@PathVariable UUID id, @Valid @ModelAttribute UserEditRequest editRequest, BindingResult bindingResult) {
 
 
         if (bindingResult.hasErrors()) {
-            User byId = userService.getById(id);
+            User user = userService.getById(id);
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("profile-menu");
-            modelAndView.addObject("user", byId);
+            modelAndView.addObject("user", user);
             modelAndView.addObject("editRequest", editRequest);
             return modelAndView;
 
@@ -59,6 +56,5 @@ public class UserController {
         return new ModelAndView("redirect:/home");
 
     }
-
 
 }

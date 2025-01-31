@@ -113,7 +113,8 @@
         </div>
       </div>
 
-      <form class="form" th:action="@{'/users/' + ${user.id} +'/profile'}" th:method="PUT" th:object="${editRequest}">
+      <form form class="form" th:action="@{'/users/' + ${user.id} + '/profile'}" th:method="PUT" th:object="${editRequest}">
+
 
         <label for="firstName">First Name</label>
         <input type="text" id="firstName" placeholder="First Name" th:field="*{firstName}">

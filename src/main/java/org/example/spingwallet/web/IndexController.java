@@ -1,6 +1,7 @@
 package org.example.spingwallet.web;
 
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.example.spingwallet.user.model.User;
 import org.example.spingwallet.user.service.UserService;
@@ -44,13 +45,15 @@ public class IndexController {
     }
 
     @PostMapping("login")
-    public String login (@Valid LoginRequest loginRequest, BindingResult bindingResult ) {
+    public String login (@Valid LoginRequest loginRequest, BindingResult bindingResult , HttpSession session) {
 
         if(bindingResult.hasErrors()) {
             return "login";
         }
 
-       userService.login(loginRequest);
+
+        User loginUser = userService.login(loginRequest);
+        session.setAttribute("user_id", loginUser.getId());
 
         return ("redirect:/home");
     }
@@ -78,13 +81,22 @@ public class IndexController {
     }
 
     @GetMapping("/home")
-    public ModelAndView getHome() {
+    public ModelAndView getHome(HttpSession session) {
 
         ModelAndView mav = new ModelAndView();
-        User userServiceById = userService.getById(UUID.fromString("702254ea-a5e5-457d-b0f3-aa4236e49ac5"));
+        UUID userId = (UUID) session.getAttribute("user_id");
+        User userServiceById = userService.getById(UUID.fromString(userId.toString()));
         mav.addObject("user", userServiceById);
         mav.setViewName("/home");
         return mav;
+    }
+
+    @GetMapping("/logout")
+    public String getLogoutPage(HttpSession session) {
+
+        session.invalidate();
+
+        return "redirect:/";
     }
 
 }

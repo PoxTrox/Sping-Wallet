@@ -2,6 +2,7 @@ package org.example.spingwallet.transaction.service;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.spingwallet.exception.DomainException;
 import org.example.spingwallet.transaction.model.Transaction;
 import org.example.spingwallet.transaction.model.TransactionStatus;
 import org.example.spingwallet.transaction.model.TransactionType;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Currency;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -52,5 +54,11 @@ public class TransactionService {
     public List<Transaction>  getAllTransaction(UUID ownerId) {
 
         return transactionRepository.findAllByOwnerIdOrderByCreatedOnDesc(ownerId);
+    }
+
+    public Transaction getTransactionById(UUID id) {
+        Optional<Transaction> byId = transactionRepository.findById(id);
+
+        return  byId.orElseThrow(()-> new DomainException("Transaction with id -> %s does not exist ".formatted(id)));
     }
 }
