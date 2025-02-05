@@ -158,7 +158,7 @@ public class WalletService {
 
         Wallet senderWallet = getWallerID(transferRequest.getFromWalletId());
         Optional<Wallet> receiverWallet = walletRepository.findAllByOwnerUsername(transferRequest.getToUserName()).stream().filter(e -> e.getStatus() == WalletStatus.ACTIVE).findFirst();
-        String transferDescription = "Transfer from %s to %s for %.2f".formatted(sender.getUsername(), transferRequest.getToUserName(), transferRequest.getAmount() );
+        String transferDescription = "Transfer from %s to %s for %s".formatted(sender.getUsername(), transferRequest.getToUserName(), transferRequest.getAmount() );
         if(receiverWallet.isEmpty()) {
 
 

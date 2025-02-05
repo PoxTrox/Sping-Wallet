@@ -121,8 +121,8 @@
           <td th:if="${transaction.status.name == 'Failed'}" th:text="${transaction.getType().name =='DEPOSIT' ? '+' + transaction.getAmount() : '-' + transaction.getAmount() + 'EUR'}" class="crosslined"></td>
           <td th:if="${transaction.status.name == 'SUCCSEEDED'}" th:text="${transaction.getType().name =='DEPOSIT' ? '+' +transaction.getAmount() : '-' + transaction.getAmount() + 'EUR'}" ></td>
           <td style="text-align: left" th:text="${transaction.status.name() == 'FAILED' ? transaction.getFailureReason() : transaction.getDescription() }"></td>
-          <td th:text="${transaction.getBalanceLeft() + ' EUR'}"></td>
-          <td th:text="${transaction.getDescription()}"></td>
+          <td th:text="${transaction.balanceLeft + ' EUR'}"></td>
+          <td th:text="${transaction.status.name()=='FAILD' ? transaction.failureReason: transaction.description}"></td>
           <td th:text="${#temporals.format(transaction.getCreatedOn(),'dd MMM yyyy HH:mm')}"></td>
         </tr>
 

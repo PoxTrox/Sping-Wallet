@@ -2,6 +2,7 @@ package org.example.spingwallet.web;
 
 
 import jakarta.validation.Valid;
+import org.example.spingwallet.security.RequireAdminRole;
 import org.example.spingwallet.user.model.User;
 import org.example.spingwallet.user.service.UserService;
 import org.example.spingwallet.web.dto.UserEditRequest;
@@ -12,6 +13,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.lang.annotation.Retention;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -57,4 +60,32 @@ public class UserController {
 
     }
 
+    @RequireAdminRole
+    @GetMapping()
+    public ModelAndView getAllUsers() {
+        ModelAndView modelAndView = new ModelAndView();
+        List<User> allUsers = userService.getAllUsers();
+        modelAndView.addObject("users", allUsers);
+        modelAndView.setViewName("users");
+        return modelAndView;
+    }
+
+
+    @PutMapping("/{id}/status")
+    public String updateProfileStatus(@PathVariable UUID id) {
+
+        userService.changeStatus(id);
+
+        return "redirect:/users";
+
+    }
+
+    @PutMapping("/{id}/role")
+    public String updateProfileRole(@PathVariable UUID id) {
+
+        userService.changeUserRole(id);
+
+        return "redirect:/users";
+
+    }
 }

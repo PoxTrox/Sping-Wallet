@@ -60,6 +60,7 @@ public class UserService {
         return user;
     }
 
+
     @Transactional
     public User register(RegisterRequest registerRequest) {
 
@@ -119,4 +120,22 @@ public class UserService {
     }
 
 
+    public void changeUserRole(UUID id) {
+
+        User byId = getById(id);
+
+        if(byId.getRole() == UserRole.USER) {
+            byId.setRole(UserRole.ADMIN);
+        }else {
+            byId.setRole(UserRole.USER);
+        }
+        userRepository.save(byId);
+    }
+    public void changeStatus(UUID id) {
+
+        User byId = getById(id);
+        byId.setActive(!byId.isActive());
+
+        userRepository.save(byId);
+    }
 }
