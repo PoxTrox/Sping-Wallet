@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -122,5 +123,25 @@ public class SubscriptionService {
 
 
         return null;
+    }
+
+    public List<Subscription> getAllSubscriptionsForRenewal() {
+
+        return subscriptionRepository.findAllByStatusAndExpirationDateLessThanEqual(SubscriptionStatus.ACTIVE, LocalDateTime.now());
+    }
+
+
+    public void markSubscriptionAsCompleted(Subscription subscription) {
+
+        subscription.setStatus(SubscriptionStatus.COMPLETED);
+        subscription.setCreationDate(LocalDateTime.now());
+        subscriptionRepository.save(subscription);
+
+    }
+
+    public void markSubAsTerminated(Subscription subscription) {
+        subscription.setStatus(SubscriptionStatus.TERMINATED);
+        subscription.setExpirationDate(LocalDateTime.now());
+        subscriptionRepository.save(subscription);
     }
 }

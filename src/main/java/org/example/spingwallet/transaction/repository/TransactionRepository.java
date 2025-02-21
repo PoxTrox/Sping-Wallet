@@ -12,4 +12,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
 
     List<Transaction> findAllByOwnerIdOrderByCreatedOnDesc(UUID accountId);
+
+    List<Transaction>findBySenderOrReceiverOrderByCreatedOnDesc(String sender, String receiver);
 }

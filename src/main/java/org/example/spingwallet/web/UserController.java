@@ -2,18 +2,17 @@ package org.example.spingwallet.web;
 
 
 import jakarta.validation.Valid;
-import org.example.spingwallet.security.RequireAdminRole;
 import org.example.spingwallet.user.model.User;
 import org.example.spingwallet.user.service.UserService;
 import org.example.spingwallet.web.dto.UserEditRequest;
 import org.example.spingwallet.web.mapper.DtoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.lang.annotation.Retention;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,8 +47,8 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             User user = userService.getById(id);
             ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("profile-menu");
             modelAndView.addObject("user", user);
+            modelAndView.setViewName("profile-menu");
             modelAndView.addObject("editRequest", editRequest);
             return modelAndView;
 
@@ -60,8 +59,9 @@ public class UserController {
 
     }
 
-    @RequireAdminRole
+
     @GetMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView getAllUsers() {
         ModelAndView modelAndView = new ModelAndView();
         List<User> allUsers = userService.getAllUsers();

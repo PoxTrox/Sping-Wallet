@@ -8,6 +8,7 @@ import org.example.spingwallet.transaction.model.TransactionStatus;
 import org.example.spingwallet.transaction.model.TransactionType;
 import org.example.spingwallet.transaction.repository.TransactionRepository;
 import org.example.spingwallet.user.model.User;
+import org.example.spingwallet.wallet.model.Wallet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -51,7 +53,7 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    public List<Transaction>  getAllTransaction(UUID ownerId) {
+    public List<Transaction> getAllTransaction(UUID ownerId) {
 
         return transactionRepository.findAllByOwnerIdOrderByCreatedOnDesc(ownerId);
     }
@@ -59,6 +61,16 @@ public class TransactionService {
     public Transaction getTransactionById(UUID id) {
         Optional<Transaction> byId = transactionRepository.findById(id);
 
-        return  byId.orElseThrow(()-> new DomainException("Transaction with id -> %s does not exist ".formatted(id)));
+        return byId.orElseThrow(() -> new DomainException("Transaction with id -> %s does not exist ".formatted(id)));
+    }
+
+    public List<Transaction> getLastFourTransactionById(Wallet wallet) {
+
+        List<Transaction> collect = transactionRepository.findBySenderOrReceiverOrderByCreatedOnDesc(wallet.getId().toString(), wallet.getId().toString()).stream()
+                .filter(t -> t.getOwner().getId() == wallet.getOwner().getId())
+                .filter(t -> t.getStatus() == TransactionStatus.SUCCEEDED).
+                limit(4).toList();
+
+        return collect;
     }
 }

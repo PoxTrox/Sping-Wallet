@@ -4,6 +4,7 @@ package org.example.spingwallet.user.service;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.spingwallet.exception.DomainException;
+import org.example.spingwallet.security.AuthenticationDetails;
 import org.example.spingwallet.subscription.model.Subscription;
 import org.example.spingwallet.subscription.service.SubscriptionService;
 import org.example.spingwallet.user.model.Country;
@@ -16,6 +17,11 @@ import org.example.spingwallet.web.dto.LoginRequest;
 import org.example.spingwallet.web.dto.RegisterRequest;
 import org.example.spingwallet.web.dto.UserEditRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +32,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -45,22 +51,8 @@ public class UserService {
         this.walletService = walletService;
     }
 
-    public User login(LoginRequest loginRequest) {
 
-        Optional<User> optionUser = userRepository.findByUsername(loginRequest.getUsername());
-        if (optionUser.isEmpty()) {
-            throw new DomainException("Username or password are incorrect.");
-        }
-
-        User user = optionUser.get();
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new DomainException("Username or password are incorrect.");
-        }
-
-        return user;
-    }
-
-
+    @CacheEvict(value = "users", allEntries = true)
     @Transactional
     public User register(RegisterRequest registerRequest) {
 
@@ -70,6 +62,7 @@ public class UserService {
         }
 
         User user = userRepository.save(initializeUser(registerRequest));
+
         Subscription defaultSubscription = subscriptionService.createDefaultSubscription(user);
         user.setSubscriptions(List.of(defaultSubscription));
 
@@ -96,6 +89,7 @@ public class UserService {
                 .build();
     }
 
+    @Cacheable("users")
     public List<User> getAllUsers() {
 
         return userRepository.findAll();
@@ -106,6 +100,7 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new DomainException("User with id [%s] does not exist.".formatted(id)));
     }
 
+    @CacheEvict(value = "users",allEntries = true)
     public void editUser(UUID id, UserEditRequest userEditRequest) {
 
         User userById = getById(id);
@@ -131,11 +126,20 @@ public class UserService {
         }
         userRepository.save(byId);
     }
+    @CacheEvict(value = "users",allEntries = true)
     public void changeStatus(UUID id) {
 
         User byId = getById(id);
         byId.setActive(!byId.isActive());
 
         userRepository.save(byId);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new DomainException("Username [%s] does not exist.".formatted(username)));
+
+        return new AuthenticationDetails(user.getId(),user.getUsername(), user.getPassword(),user.getRole(),user.isActive());
     }
 }

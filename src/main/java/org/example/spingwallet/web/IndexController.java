@@ -1,21 +1,23 @@
 package org.example.spingwallet.web;
 
 
-import jakarta.servlet.http.HttpSession;
+
 import jakarta.validation.Valid;
+import org.example.spingwallet.security.AuthenticationDetails;
 import org.example.spingwallet.user.model.User;
 import org.example.spingwallet.user.service.UserService;
 import org.example.spingwallet.web.dto.LoginRequest;
 import org.example.spingwallet.web.dto.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/")
@@ -35,28 +37,20 @@ public class IndexController {
     }
 
     @GetMapping("/login")
-    public ModelAndView getLogin() {
+    public ModelAndView getLogin(@RequestParam( value = "error",required = false)String errorParam) {
 
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("login");
         modelAndView.addObject("loginRequest", new LoginRequest());
 
+        if (errorParam != null) {
+            modelAndView.addObject("errorMessage", "Invalid username or password");
+        }
+
         return modelAndView;
     }
 
-    @PostMapping("login")
-    public String login (@Valid LoginRequest loginRequest, BindingResult bindingResult , HttpSession session) {
 
-        if(bindingResult.hasErrors()) {
-            return "login";
-        }
-
-
-        User loginUser = userService.login(loginRequest);
-        session.setAttribute("user_id", loginUser.getId());
-
-        return ("redirect:/home");
-    }
 
     @GetMapping("/register")
     public ModelAndView getRegister() {
@@ -81,22 +75,14 @@ public class IndexController {
     }
 
     @GetMapping("/home")
-    public ModelAndView getHome(HttpSession session) {
+    public ModelAndView getHome( @AuthenticationPrincipal AuthenticationDetails authenticationDetails) {
 
         ModelAndView mav = new ModelAndView();
-        UUID userId = (UUID) session.getAttribute("user_id");
-        User userServiceById = userService.getById(UUID.fromString(userId.toString()));
+        User userServiceById = userService.getById(authenticationDetails.getId());
         mav.addObject("user", userServiceById);
         mav.setViewName("/home");
         return mav;
     }
 
-    @GetMapping("/logout")
-    public String getLogoutPage(HttpSession session) {
-
-        session.invalidate();
-
-        return "redirect:/";
-    }
 
 }

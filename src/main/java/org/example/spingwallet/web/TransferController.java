@@ -2,12 +2,14 @@ package org.example.spingwallet.web;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.example.spingwallet.security.AuthenticationDetails;
 import org.example.spingwallet.transaction.model.Transaction;
 import org.example.spingwallet.user.model.User;
 import org.example.spingwallet.user.service.UserService;
 import org.example.spingwallet.wallet.service.WalletService;
 import org.example.spingwallet.web.dto.TransferRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,10 +34,10 @@ public class TransferController {
     }
 
     @GetMapping
-    public ModelAndView getTransfers(HttpSession session) {
+    public ModelAndView getTransfers(@AuthenticationPrincipal AuthenticationDetails authenticationDetails) {
 
-        UUID userId = (UUID) session.getAttribute("user_id");
-        User user = userService.getById(UUID.fromString(String.valueOf(userId)));
+
+        User user = userService.getById(authenticationDetails.getId());
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("user", user);
         modelAndView.addObject("transferRequest", TransferRequest.builder().build());
@@ -46,10 +48,11 @@ public class TransferController {
     }
 
     @PostMapping
-    public ModelAndView initiateTransfer(@Valid TransferRequest transferRequest, BindingResult bindingResult, HttpSession session) {
+    public ModelAndView initiateTransfer(@Valid TransferRequest transferRequest, BindingResult bindingResult,
+                                         @AuthenticationPrincipal AuthenticationDetails authenticationDetails) {
 
-        Object userId = session.getAttribute("user_id");
-        User user = userService.getById(UUID.fromString(userId.toString()));
+
+        User user = userService.getById(authenticationDetails.getId());
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("transfer");
